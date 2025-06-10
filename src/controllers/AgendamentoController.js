@@ -157,7 +157,7 @@ class AgendamentoController {
         await sendEmail({
             to: process.env.EMAIL_FROM,
             subject: "Novo Agendamento Recebido",
-            text: `Novo agendamento recebido:\n\nNome: ${agendamento.nome}\nEmail: ${agendamento.email}\nTipo: ${tipoAgendamento}\n\nAcesse o painel para mais detalhes.`,
+            text: `Novo agendamento recebido:\n\nNome do Solicitante: ${agendamento.nome}\nEmail: ${agendamento.email}\nTipo: ${tipoAgendamento}\n\nAcesse o painel para mais detalhes.`,
             agendamento: agendamentoComTipo,
         })
     }
@@ -277,15 +277,9 @@ class AgendamentoController {
 
     async cancel(req, res) {
         const transaction = await sequelize.transaction()
-
         try {
             const { id } = req.params
-            const { tipo, motivo, origem } = req.body
-
-            if (!tipo) {
-                await transaction.rollback()
-                return res.status(400).json({ error: "Tipo de agendamento é obrigatório" })
-            }
+            const { tipo, motivo } = req.body
 
             const Model = AgendamentoController.getModelByType(tipo)
             if (!Model) {
@@ -293,50 +287,35 @@ class AgendamentoController {
                 return res.status(400).json({ error: "Tipo de agendamento inválido" })
             }
 
-            const agendamento = await Model.findByPk(id, {
-                lock: transaction.LOCK.UPDATE,
-                transaction,
-            })
-
+            const agendamento = await Model.findByPk(id)
             if (!agendamento) {
                 await transaction.rollback()
-                return res.status(404).json({
-                    error: "Agendamento não encontrado",
-                    code: "NOT_FOUND",
-                })
+                return res.status(404).json({ error: "Agendamento não encontrado" })
             }
 
             if (agendamento.status === "cancelado") {
                 await transaction.rollback()
-                return res.status(400).json({
-                    error: "Agendamento já está cancelado",
-                    code: "ALREADY_CANCELLED",
-                })
+                return res.status(400).json({ error: "Agendamento já está cancelado" })
             }
 
-            const canceladoPor = origem === "email" ? "Solicitante" : "Administrador"
+            const agendamentoComTipo = {
+                ...agendamento.toJSON(),
+                tipoAgendamento: tipo,
+            }
 
-            if (origem === "email") {
-                const agendamentoComTipo = {
-                    ...agendamento.toJSON(),
-                    tipoAgendamento: tipo,
-                }
-
-                const validacao = validarHorarioCancelamento(agendamentoComTipo)
-                if (!validacao.permitido) {
-                    await transaction.rollback()
-                    return res.status(400).json({
-                        error: "Não é possível cancelar o agendamento neste horário",
-                        code: "INVALID_TIME",
-                        details: validacao.mensagem,
-                    })
-                }
+            const validacao = validarHorarioCancelamento(agendamentoComTipo)
+            if (!validacao.permitido) {
+                await transaction.rollback()
+                return res.status(400).json({
+                    error: "Não é possível cancelar o agendamento neste horário",
+                    code: "INVALID_TIME",
+                    details: validacao.mensagem,
+                })
             }
 
             await agendamento.update(
                 {
                     status: "cancelado",
-                    canceladoPor: canceladoPor,
                     motivoCancelamento: motivo || null,
                     version: agendamento.version + 1,
                 },
@@ -352,7 +331,7 @@ class AgendamentoController {
                 await sendEmail({
                     to: agendamento.email,
                     subject: "Agendamento Cancelado",
-                    text: `Olá ${agendamento.nome},\n\nSeu agendamento foi cancelado${motivo ? ` pelo seguinte motivo: ${motivo}` : ""}.\n\nCancelado por: ${canceladoPor}\n\nAtenciosamente,\nEquipe Nutrilite`,
+                    text: `Olá ${agendamento.nome},\n\nSeu agendamento foi cancelado${motivo ? ` pelo seguinte motivo: ${motivo}` : ""}.\n\nAtenciosamente,\nEquipe Nutrilite`,
                     agendamento: agendamentoComTipo,
                     motivo,
                 })
@@ -360,16 +339,16 @@ class AgendamentoController {
 
             await transaction.commit()
             return res.json({
-                ...agendamento.toJSON(),
-                tipoAgendamento: tipo,
+                message: "Agendamento cancelado com sucesso",
+                data: {
+                    ...agendamento.toJSON(),
+                    tipoAgendamento: tipo,
+                }
             })
         } catch (error) {
             await transaction.rollback()
             console.error("Erro ao cancelar agendamento:", error)
-            return res.status(500).json({
-                error: "Erro ao cancelar agendamento",
-                details: error.message,
-            })
+            return res.status(500).json({ error: "Erro ao cancelar agendamento" })
         }
     }
 

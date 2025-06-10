@@ -31,10 +31,6 @@ const createBaseAgendamento = (sequelize, modelName, tableName, specificFields =
             type: DataTypes.ENUM("pendente", "confirmado", "cancelado"),
             defaultValue: "pendente",
         },
-        canceladoPor: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
         motivoCancelamento: {
             type: DataTypes.TEXT,
             allowNull: true,

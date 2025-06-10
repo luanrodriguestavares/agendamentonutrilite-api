@@ -6,7 +6,13 @@ const formatarData = (data) => {
     try {
         const date = new Date(data);
         if (isNaN(date.getTime())) return 'Data inválida';
-        return date.toLocaleDateString('pt-BR', {
+
+        // Ajusta o fuso horário para considerar UTC
+        const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+        const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
+        adjustedDate.setHours(0, 0, 0, 0);
+
+        return adjustedDate.toLocaleDateString('pt-BR', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
@@ -83,11 +89,13 @@ const gerarTemplateEmail = (nome, tipo, status, linkCancelamento, agendamento) =
                             <strong>Data:</strong> ${formatarData(agendamento.data)}
                         </td>
                     </tr>
+                    ${agendamento.refeicoes !== "Lanche Individual" ? `
                     <tr>
                         <td style="padding: 10px; border-bottom: 1px solid #eee;">
                             <strong>Quantidade:</strong> ${agendamento.qtdLanche || '0'}
                         </td>
                     </tr>
+                    ` : ''}
                 `;
             case 'Agendamento para Visitante':
                 return `
@@ -232,11 +240,13 @@ const gerarTemplateCancelamento = (nome, tipo, motivo, agendamento) => {
                             <strong>Data:</strong> ${formatarData(agendamento.data)}
                         </td>
                     </tr>
+                    ${agendamento.refeicoes !== "Lanche Individual" ? `
                     <tr>
                         <td style="padding: 10px; border-bottom: 1px solid #eee;">
                             <strong>Quantidade:</strong> ${agendamento.qtdLanche || '0'}
                         </td>
                     </tr>
+                    ` : ''}
                 `;
             case 'Agendamento para Visitante':
                 return `
@@ -278,7 +288,7 @@ const gerarTemplateCancelamento = (nome, tipo, motivo, agendamento) => {
                 </p>
 
                 <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 20px;">
-                    Informamos que seu agendamento foi cancelado por ${agendamento.canceladoPor || 'Solicitante'}.
+                    Informamos que seu agendamento foi cancelado.
                 </p>
 
                 ${motivo ? `
@@ -315,6 +325,141 @@ const gerarTemplateCancelamento = (nome, tipo, motivo, agendamento) => {
     `;
 };
 
+const gerarTemplateEmailAdmin = (agendamento) => {
+    const getDetalhesAgendamento = () => {
+        switch (agendamento.tipoAgendamento) {
+            case 'Agendamento para Time':
+                return `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Time/Setor:</strong> ${agendamento.timeSetor || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Data:</strong> ${formatarData(agendamento.dataFeriado || agendamento.dataInicio)}
+                        </td>
+                    </tr>
+                    ${agendamento.turno ? `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Turno:</strong> ${agendamento.turno}
+                        </td>
+                    </tr>
+                    ` : ''}
+                `;
+            case 'Home Office':
+                return `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Data Início:</strong> ${formatarData(agendamento.dataInicio)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Data Fim:</strong> ${formatarData(agendamento.dataFim)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Refeitório:</strong> ${agendamento.refeitorio || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Turno:</strong> ${agendamento.turno || 'Não informado'}
+                        </td>
+                    </tr>
+                `;
+            case 'Administrativo - Lanche':
+                return `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Data:</strong> ${formatarData(agendamento.data)}
+                        </td>
+                    </tr>
+                    ${agendamento.refeicoes !== "Lanche Individual" ? `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Quantidade:</strong> ${agendamento.qtdLanche || '0'}
+                        </td>
+                    </tr>
+                    ` : ''}
+                `;
+            case 'Agendamento para Visitante':
+                return `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Data da Visita:</strong> ${formatarData(agendamento.data)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Refeitório:</strong> ${agendamento.refeitorio || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Quantidade de Visitantes:</strong> ${agendamento.quantidadeVisitantes || '0'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Acompanhante:</strong> ${agendamento.acompanhante || 'Não informado'}
+                        </td>
+                    </tr>
+                `;
+            default:
+                return '';
+        }
+    };
+
+    return `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="background-color: #059669; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Novo Agendamento Registrado</h1>
+            </div>
+
+            <div style="padding: 30px;">
+                <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 20px;">
+                    Um novo agendamento foi registrado no sistema.
+                </p>
+
+                <div style="background-color: #f9fafb; border-radius: 6px; padding: 20px; margin: 20px 0;">
+                    <h2 style="color: #059669; font-size: 18px; margin-top: 0; margin-bottom: 15px;">Detalhes do Agendamento</h2>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                                <strong>Solicitante:</strong> ${agendamento.nome}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                                <strong>Email:</strong> ${agendamento.email}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                                <strong>Tipo:</strong> ${agendamento.tipoAgendamento}
+                            </td>
+                        </tr>
+                        ${getDetalhesAgendamento()}
+                    </table>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="font-size: 14px; color: #6b7280; margin: 0;">
+                        Este é um e-mail automático. Por favor, não responda.
+                    </p>
+                    <p style="font-size: 14px; color: #6b7280; margin: 10px 0 0 0;">
+                        Acesse o painel administrativo para mais detalhes.
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
 const sendEmail = async ({ to, subject, text, html, agendamento, motivo }) => {
     try {
         let emailHtml;
@@ -326,6 +471,8 @@ const sendEmail = async ({ to, subject, text, html, agendamento, motivo }) => {
                 motivo,
                 agendamento
             );
+        } else if (subject.includes('Novo Agendamento Recebido')) {
+            emailHtml = gerarTemplateEmailAdmin(agendamento);
         } else {
             const linkCancelamento = gerarLinkCancelamento(agendamento.id);
             emailHtml = html || gerarTemplateEmail(

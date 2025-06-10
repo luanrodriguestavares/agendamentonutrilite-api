@@ -9,38 +9,49 @@ const validarHorarioCancelamento = (agendamento) => {
 		const diaAtual = startOfDay(agora)
 
 		const obterDataAgendamento = () => {
+			const adjustDate = (dateString) => {
+				if (!dateString) return null
+				const date = new Date(dateString)
+
+				const userTimezoneOffset = date.getTimezoneOffset() * 60000
+				const adjustedDate = new Date(date.getTime() + userTimezoneOffset)
+				adjustedDate.setHours(0, 0, 0, 0)
+
+				return adjustedDate
+			}
+
 			switch (agendamento.tipoAgendamento) {
 				case "Agendamento para Time":
 					if (agendamento.dataFeriado) {
-						return new Date(agendamento.dataFeriado)
+						return adjustDate(agendamento.dataFeriado)
 					}
 					if (agendamento.dataInicio) {
-						return new Date(agendamento.dataInicio)
+						return adjustDate(agendamento.dataInicio)
 					}
 					break
 				case "Home Office":
 					if (agendamento.dataInicio) {
-						return new Date(agendamento.dataInicio)
+						return adjustDate(agendamento.dataInicio)
 					}
 					break
 				case "Administrativo - Lanche":
 					if (agendamento.data) {
-						return new Date(agendamento.data)
+						return adjustDate(agendamento.data)
 					}
 					break
 				case "Agendamento para Visitante":
 					if (agendamento.data) {
-						return new Date(agendamento.data)
+						return adjustDate(agendamento.data)
 					}
 					break
 				case "Coffee Break":
 					if (agendamento.dataCoffee) {
-						return new Date(agendamento.dataCoffee)
+						return adjustDate(agendamento.dataCoffee)
 					}
 					break
 				case "Rota Extra":
 					if (agendamento.dataInicio) {
-						return new Date(agendamento.dataInicio)
+						return adjustDate(agendamento.dataInicio)
 					}
 					break
 			}
@@ -90,22 +101,52 @@ const validarHorarioCancelamento = (agendamento) => {
 
 		if (agendamento.tipoAgendamento === "Rota Extra") {
 			const diaAtualSemana = getDay(agora)
+			const dataAgendamentoSemana = getDay(dataAgendamento)
+			const ehFimDeSemanaAtual =
+				dataAgendamentoSemana >= 6 && // Sábado ou Domingo
+				Math.abs(dataAgendamento - agora) <= 7 * 24 * 60 * 60 * 1000 // Dentro de 7 dias
 
-			if (diaAtualSemana === 5) {
-				if (horaAtual >= 11) {
+			if (ehFimDeSemanaAtual) {
+				if (diaAtualSemana === 5) {
+					if (horaAtual >= 11) {
+						return {
+							permitido: false,
+							mensagem: "O horário limite para cancelamento de Rota Extra é até às 11:00h da sexta-feira.",
+						}
+					}
+				} else if (diaAtualSemana === 6 || diaAtualSemana === 0) {
 					return {
 						permitido: false,
-						mensagem: "O horário limite para cancelamento de Rota Extra é até às 11:00h da sexta-feira.",
+						mensagem:
+							"Não é possível cancelar Rota Extra nos finais de semana. O prazo limite é até às 11:00h da sexta-feira.",
 					}
-				}
-			} else if (diaAtualSemana === 6 || diaAtualSemana === 0) {
-				return {
-					permitido: false,
-					mensagem:
-						"Não é possível cancelar Rota Extra nos finais de semana. O prazo limite é até às 11:00h da sexta-feira.",
 				}
 			}
 
+			return { permitido: true, mensagem: "" }
+		}
+
+		if (agendamento.tipoAgendamento === "Administrativo - Lanche") {
+			if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
+				if (horaAtual > 7 || (horaAtual === 7 && minutosAtual > 35)) {
+					return {
+						permitido: false,
+						mensagem: "O horário limite para cancelamento de lanche individual é até 07:35h do dia solicitado.",
+					}
+				}
+			}
+			return { permitido: true, mensagem: "" }
+		}
+
+		if (agendamento.tipoAgendamento === "Agendamento para Visitante") {
+			if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
+				if (horaAtual > 7 || (horaAtual === 7 && minutosAtual > 30)) {
+					return {
+						permitido: false,
+						mensagem: "O horário limite para cancelamento de agendamento para visitante é até 07:30h do dia solicitado.",
+					}
+				}
+			}
 			return { permitido: true, mensagem: "" }
 		}
 
