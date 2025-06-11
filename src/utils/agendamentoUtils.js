@@ -2,15 +2,53 @@ const { format, isAfter, isBefore, startOfDay, addDays, getDay } = require("date
 const { ptBR } = require("date-fns/locale")
 
 const temAlmoco = (agendamento) => {
-	return agendamento.turno === "A" || agendamento.turno === "ADM" || agendamento.quantidadeAlmocoLanche > 0
+	return agendamento.turno === "A" || agendamento.turno === "ADM" || agendamento.quantidadeAlmocoLanche > 0 ||
+		   (agendamento.tipoAgendamento === "Home Office" && agendamento.refeicoes?.includes("Almoço"))
 }
 
 const temJantarCeia = (agendamento) => {
-	return agendamento.turno === "B" || agendamento.quantidadeJantarCeia > 0
+	return agendamento.turno === "B" || agendamento.quantidadeJantarCeia > 0 ||
+		   (agendamento.tipoAgendamento === "Home Office" && (agendamento.refeicoes?.includes("Jantar") || agendamento.refeicoes?.includes("Ceia")))
 }
 
 const temLanche = (agendamento) => {
 	return agendamento.turno === "A" || agendamento.turno === "ADM" || agendamento.quantidadeLancheExtra > 0
+}
+
+const getMensagemCancelamento = (agendamento, ehFinalDeSemana) => {
+	if (ehFinalDeSemana) {
+		if (agendamento.tipoAgendamento === "Home Office") {
+			if (temAlmoco(agendamento)) {
+				return "O cancelamento de almoço em Home Office para fins de semana/feriados deve ser feito até 13:30h do dia anterior."
+			}
+			if (temJantarCeia(agendamento)) {
+				return "O cancelamento de jantar/ceia em Home Office para fins de semana/feriados deve ser feito até 12:00h do dia solicitado."
+			}
+		} else {
+			if (temAlmoco(agendamento)) {
+				return "O cancelamento de almoço em fins de semana/feriados deve ser feito até 13:30h do dia anterior."
+			}
+			return "O cancelamento de refeições em fins de semana/feriados deve ser feito até 12:00h do dia solicitado."
+		}
+	} else {
+		if (agendamento.tipoAgendamento === "Home Office") {
+			if (temAlmoco(agendamento) && temJantarCeia(agendamento)) {
+				return "O cancelamento de almoço deve ser feito até 07:35h e de jantar/ceia até 09:05h do mesmo dia."
+			} else if (temAlmoco(agendamento)) {
+				return "O cancelamento de almoço deve ser feito até 07:35h do mesmo dia."
+			} else if (temJantarCeia(agendamento)) {
+				return "O cancelamento de jantar/ceia deve ser feito até 09:05h do mesmo dia."
+			}
+		} else {
+			if (temAlmoco(agendamento)) {
+				return "O cancelamento de almoço (Turno A e ADM) em dias úteis deve ser feito até 07:35h do mesmo dia."
+			}
+			if (temJantarCeia(agendamento)) {
+				return "O cancelamento de jantar e ceia (Turno B) em dias úteis deve ser feito até 09:05h do mesmo dia."
+			}
+		}
+	}
+	return "Horário limite de cancelamento excedido."
 }
 
 const validarHorarioCancelamento = (agendamento) => {
@@ -30,6 +68,10 @@ const validarHorarioCancelamento = (agendamento) => {
 				adjustedDate.setHours(0, 0, 0, 0)
 
 				return adjustedDate
+			}
+
+			if (agendamento.tipoAgendamento === "Home Office") {
+				return adjustDate(agendamento.dataInicio)
 			}
 
 			if (agendamento.tipoAgendamento === "Agendamento para Time") {
@@ -62,54 +104,55 @@ const validarHorarioCancelamento = (agendamento) => {
 			}
 		}
 
-		if (agendamento.tipoAgendamento === "Agendamento para Time") {
-			if (ehFinalDeSemana) {
-				const diaAnterior = addDays(dataAgendamentoSemHora, -1)
+		if (ehFinalDeSemana) {
+			const diaAnterior = addDays(dataAgendamentoSemHora, -1)
 
+			if (temAlmoco(agendamento)) {
+				if (diaAtual.getTime() === diaAnterior.getTime()) {
+					if (horaAtual > 13 || (horaAtual === 13 && minutosAtual > 30)) {
+						return {
+							permitido: false,
+							mensagem: getMensagemCancelamento(agendamento, true),
+						}
+					}
+				} else if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
+					return {
+						permitido: false,
+						mensagem: getMensagemCancelamento(agendamento, true),
+					}
+				}
+			}
+
+			if (temJantarCeia(agendamento)) {
+				if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
+					if (horaAtual >= 12) {
+						return {
+							permitido: false,
+							mensagem: getMensagemCancelamento(agendamento, true),
+						}
+					}
+				}
+			}
+		} else {
+			if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
 				if (temAlmoco(agendamento)) {
-					if (diaAtual.getTime() === diaAnterior.getTime()) {
-						if (horaAtual > 13 || (horaAtual === 13 && minutosAtual > 30)) {
-							return {
-								permitido: false,
-								mensagem: "O horário limite para cancelamento de almoço em fins de semana/feriados é até 13:30h do dia anterior.",
-							}
+					if (horaAtual > 7 || (horaAtual === 7 && minutosAtual > 35)) {
+						return {
+							permitido: false,
+							mensagem: getMensagemCancelamento(agendamento, false),
 						}
 					}
 				}
 
 				if (temJantarCeia(agendamento)) {
-					if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
-						if (horaAtual >= 12) {
-							return {
-								permitido: false,
-								mensagem: "O horário limite para cancelamento de jantar e ceia em fins de semana/feriados é até 12:00h do dia do evento.",
-							}
-						}
-					}
-				}
-			} else {
-				if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
-					if (temAlmoco(agendamento)) {
-						if (horaAtual > 7 || (horaAtual === 7 && minutosAtual > 35)) {
-							return {
-								permitido: false,
-								mensagem: "O horário limite para cancelamento de almoço é até 07:35h do mesmo dia.",
-							}
-						}
-					}
-
-					if (temJantarCeia(agendamento)) {
-						if (horaAtual > 9 || (horaAtual === 9 && minutosAtual > 5)) {
-							return {
-								permitido: false,
-								mensagem: "O horário limite para cancelamento de jantar e ceia é até 09:05h do mesmo dia.",
-							}
+					if (horaAtual > 9 || (horaAtual === 9 && minutosAtual > 5)) {
+						return {
+							permitido: false,
+							mensagem: getMensagemCancelamento(agendamento, false),
 						}
 					}
 				}
 			}
-
-			return { permitido: true, mensagem: "" }
 		}
 
 		return { permitido: true, mensagem: "" }

@@ -279,7 +279,7 @@ class AgendamentoController {
         const transaction = await sequelize.transaction()
         try {
             const { id } = req.params
-            const { tipo, motivo } = req.body
+            const { tipo, motivo, origem } = req.body
 
             const Model = AgendamentoController.getModelByType(tipo)
             if (!Model) {
@@ -310,6 +310,7 @@ class AgendamentoController {
                     error: "Não é possível cancelar o agendamento neste horário",
                     code: "INVALID_TIME",
                     details: validacao.mensagem,
+                    origem: origem || "sistema"
                 })
             }
 
@@ -334,6 +335,7 @@ class AgendamentoController {
                     text: `Olá ${agendamento.nome},\n\nSeu agendamento foi cancelado${motivo ? ` pelo seguinte motivo: ${motivo}` : ""}.\n\nAtenciosamente,\nEquipe Nutrilite`,
                     agendamento: agendamentoComTipo,
                     motivo,
+                    error: validacao.mensagem
                 })
             }
 

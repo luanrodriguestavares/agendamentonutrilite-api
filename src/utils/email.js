@@ -460,17 +460,61 @@ const gerarTemplateEmailAdmin = (agendamento) => {
     `;
 };
 
-const sendEmail = async ({ to, subject, text, html, agendamento, motivo }) => {
+const sendEmail = async ({ to, subject, text, html, agendamento, motivo, error }) => {
     try {
         let emailHtml;
 
         if (subject.includes('Cancelado')) {
-            emailHtml = gerarTemplateCancelamento(
-                agendamento.nome,
-                agendamento.tipoAgendamento,
-                motivo,
-                agendamento
-            );
+            if (error) {
+                emailHtml = `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="background-color: #dc2626; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Não Foi Possível Cancelar o Agendamento</h1>
+                        </div>
+
+                        <div style="padding: 30px;">
+                            <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 20px;">
+                                Prezado(a) <strong>${agendamento.nome}</strong>,
+                            </p>
+
+                            <div style="background-color: #fee2e2; border-radius: 6px; padding: 15px; margin: 20px 0;">
+                                <p style="color: #991b1b; margin: 0; font-size: 16px;">
+                                    <strong>Motivo:</strong><br>
+                                    ${error}
+                                </p>
+                            </div>
+
+                            <div style="background-color: #f9fafb; border-radius: 6px; padding: 20px; margin: 20px 0;">
+                                <h2 style="color: #dc2626; font-size: 18px; margin-top: 0; margin-bottom: 15px;">Detalhes do Agendamento</h2>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                                            <strong>Tipo:</strong> ${agendamento.tipoAgendamento}
+                                        </td>
+                                    </tr>
+                                    ${getDetalhesAgendamento(agendamento.tipoAgendamento, agendamento)}
+                                </table>
+                            </div>
+
+                            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                                <p style="font-size: 14px; color: #6b7280; margin: 0;">
+                                    Este é um e-mail automático. Por favor, não responda.
+                                </p>
+                                <p style="font-size: 14px; color: #6b7280; margin: 10px 0 0 0;">
+                                    Em caso de dúvidas, entre em contato com a equipe Nutrilite.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                emailHtml = gerarTemplateCancelamento(
+                    agendamento.nome,
+                    agendamento.tipoAgendamento,
+                    motivo,
+                    agendamento
+                );
+            }
         } else if (subject.includes('Novo Agendamento Recebido')) {
             emailHtml = gerarTemplateEmailAdmin(agendamento);
         } else {
@@ -487,7 +531,7 @@ const sendEmail = async ({ to, subject, text, html, agendamento, motivo }) => {
         await transporter.sendMail({
             from: process.env.EMAIL_FROM,
             to,
-            subject,
+            subject: error ? "Não Foi Possível Cancelar o Agendamento" : subject,
             text,
             html: emailHtml
         });
