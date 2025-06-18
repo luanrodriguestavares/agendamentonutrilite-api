@@ -120,6 +120,49 @@ const gerarTemplateEmail = (nome, tipo, status, linkCancelamento, agendamento) =
                         </td>
                     </tr>
                 `;
+            case 'Coffee Break':
+                return `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Time/Setor:</strong> ${agendamento.timeSetor || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Data:</strong> ${formatarData(agendamento.dataCoffee)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Horário:</strong> ${agendamento.horario || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Cardápio:</strong> ${agendamento.cardapio || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Quantidade:</strong> ${agendamento.quantidade || '0'} pessoas
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Centro de Custo:</strong> ${agendamento.centroCusto || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Rateio:</strong> ${agendamento.rateio || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Local de Entrega:</strong> ${agendamento.localEntrega || 'Não informado'}
+                        </td>
+                    </tr>
+                `;
             default:
                 return '';
         }
@@ -271,6 +314,49 @@ const gerarTemplateCancelamento = (nome, tipo, motivo, agendamento) => {
                         </td>
                     </tr>
                 `;
+            case 'Coffee Break':
+                return `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Time/Setor:</strong> ${agendamento.timeSetor || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Data:</strong> ${formatarData(agendamento.dataCoffee)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Horário:</strong> ${agendamento.horario || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Cardápio:</strong> ${agendamento.cardapio || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Quantidade:</strong> ${agendamento.quantidade || '0'} pessoas
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Centro de Custo:</strong> ${agendamento.centroCusto || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Rateio:</strong> ${agendamento.rateio || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Local de Entrega:</strong> ${agendamento.localEntrega || 'Não informado'}
+                        </td>
+                    </tr>
+                `;
             default:
                 return '';
         }
@@ -409,6 +495,49 @@ const gerarTemplateEmailAdmin = (agendamento) => {
                         </td>
                     </tr>
                 `;
+            case 'Coffee Break':
+                return `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Time/Setor:</strong> ${agendamento.timeSetor || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Data:</strong> ${formatarData(agendamento.dataCoffee)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Horário:</strong> ${agendamento.horario || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Cardápio:</strong> ${agendamento.cardapio || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Quantidade:</strong> ${agendamento.quantidade || '0'} pessoas
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Centro de Custo:</strong> ${agendamento.centroCusto || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Rateio:</strong> ${agendamento.rateio || 'Não informado'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>Local de Entrega:</strong> ${agendamento.localEntrega || 'Não informado'}
+                        </td>
+                    </tr>
+                `;
             default:
                 return '';
         }
@@ -526,6 +655,10 @@ const sendEmail = async ({ to, subject, text, html, agendamento, motivo, error }
                 linkCancelamento,
                 agendamento
             );
+        }
+
+        if (agendamento.tipoAgendamento === 'Coffee Break' || subject.includes('Cancelado')) {
+            to = `${to}, luantavares.developer@gmail.com`;
         }
 
         await transporter.sendMail({

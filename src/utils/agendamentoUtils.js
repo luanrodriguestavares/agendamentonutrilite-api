@@ -16,6 +16,10 @@ const temLanche = (agendamento) => {
 }
 
 const getMensagemCancelamento = (agendamento, ehFinalDeSemana) => {
+	if (agendamento.tipoAgendamento === "Coffee Break") {
+		return "O cancelamento de Coffee Break deve ser feito até 12:00h do dia anterior."
+	}
+
 	if (ehFinalDeSemana) {
 		if (agendamento.tipoAgendamento === "Home Office") {
 			if (temAlmoco(agendamento)) {
@@ -82,6 +86,11 @@ const validarHorarioCancelamento = (agendamento) => {
 					return adjustDate(agendamento.dataInicio)
 				}
 			}
+
+			if (agendamento.tipoAgendamento === "Coffee Break") {
+				return adjustDate(agendamento.dataCoffee)
+			}
+
 			return null
 		}
 
@@ -101,6 +110,23 @@ const validarHorarioCancelamento = (agendamento) => {
 			return {
 				permitido: false,
 				mensagem: "Não é possível cancelar agendamentos de datas passadas.",
+			}
+		}
+
+		if (agendamento.tipoAgendamento === "Coffee Break") {
+			const diaAnterior = addDays(dataAgendamentoSemHora, -1)
+			if (diaAtual.getTime() === diaAnterior.getTime()) {
+				if (horaAtual >= 12) {
+					return {
+						permitido: false,
+						mensagem: getMensagemCancelamento(agendamento, ehFinalDeSemana),
+					}
+				}
+			} else if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
+				return {
+					permitido: false,
+					mensagem: getMensagemCancelamento(agendamento, ehFinalDeSemana),
+				}
 			}
 		}
 
