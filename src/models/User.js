@@ -11,7 +11,6 @@ const User = sequelize.define('User', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
         validate: {
             isEmail: true,
         },
@@ -25,6 +24,12 @@ const User = sequelize.define('User', {
         defaultValue: 'admin',
     },
 }, {
+    indexes: [
+        {
+            unique: true,
+            fields: ['email']
+        }
+    ],
     hooks: {
         beforeCreate: async (user) => {
             if (user.password) {
@@ -43,4 +48,4 @@ User.prototype.checkPassword = function (password) {
     return bcrypt.compare(password, this.password);
 };
 
-module.exports = User; 
+module.exports = User;

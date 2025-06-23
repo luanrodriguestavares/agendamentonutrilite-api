@@ -115,6 +115,7 @@ class AgendamentoController {
                 return {
                     ...dadosBase,
                     timeSetor: dados.timeSetor,
+                    turno: dados.turno,
                     cardapio: dados.cardapio,
                     quantidade: dados.quantidade,
                     centroCusto: dados.centroCusto,

@@ -2,6 +2,7 @@ const express = require("express")
 const cors = require("cors")
 const routes = require("./routes")
 const { models, syncModels } = require("./models")
+const sequelize = require("./config/database")
 
 require("dotenv").config()
 
@@ -29,24 +30,18 @@ const createDefaultAdmin = async () => {
 
 const initializeApp = async () => {
     try {
-        console.log("Iniciando sincronização do banco de dados...")
+        await sequelize.sync({ alter: true })
+        console.log("Modelos sincronizados com o banco de dados.")
 
-        const syncSuccess = await syncModels()
-
-        if (syncSuccess) {
-            await createDefaultAdmin()
-            console.log("Aplicação inicializada com sucesso!")
-        } else {
-            console.error("Falha na sincronização do banco de dados")
-        }
+        await createDefaultAdmin()
+        console.log("Aplicação inicializada com sucesso!")
     } catch (error) {
         console.error("Erro ao inicializar aplicação:", error)
     }
 }
 
-initializeApp()
-
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`)
+    initializeApp()
 })

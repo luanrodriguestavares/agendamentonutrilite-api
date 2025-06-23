@@ -7,6 +7,10 @@ const CoffeeBreak = createBaseAgendamento(sequelize, "CoffeeBreak", "coffee_brea
         type: DataTypes.STRING,
         allowNull: false,
     },
+    turno: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     cardapio: {
         type: DataTypes.ENUM("Coffe Tipo 01", "Coffe Tipo 02", "Coffe Tipo 03", "Coffe Tipo 04", "Coffe Tipo 05"),
         allowNull: false,
