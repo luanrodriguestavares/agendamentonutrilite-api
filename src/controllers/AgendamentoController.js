@@ -258,11 +258,13 @@ class AgendamentoController {
                     tipoAgendamento,
                 }
 
-                await sendEmail({
+                sendEmail({
                     to: agendamento.email,
                     subject: "Agendamento Confirmado",
                     text: `Olá ${agendamento.nome},\n\nSeu agendamento foi confirmado!\n\nDetalhes do agendamento:\nTipo: ${tipoAgendamento}\nStatus: Confirmado\n\nAtenciosamente,\nEquipe Nutrilite`,
                     agendamento: agendamentoComTipo,
+                }).catch(error => {
+                    console.error('Erro ao enviar email de confirmação:', error)
                 })
             }
 
