@@ -43,6 +43,10 @@ const AgendamentoTime = createBaseAgendamento(sequelize, "AgendamentoTime", "age
         type: DataTypes.INTEGER,
         allowNull: true,
     },
+    refeitorio: {
+        type: DataTypes.ENUM("Fazenda", "Industria"),
+        allowNull: false,
+    },
 })
 
 module.exports = AgendamentoTime

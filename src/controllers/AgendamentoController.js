@@ -78,6 +78,8 @@ class AgendamentoController {
                     quantidadeAlmocoLanche: dados.quantidadeAlmocoLanche,
                     quantidadeJantarCeia: dados.quantidadeJantarCeia,
                     quantidadeLancheExtra: dados.quantidadeLancheExtra,
+                    refeitorio: dados.refeitorio,
+                    observacao: dados.observacao,
                 }
 
             case "Home Office":
