@@ -3,12 +3,12 @@ const { ptBR } = require("date-fns/locale")
 
 const temAlmoco = (agendamento) => {
 	return agendamento.turno === "A" || agendamento.turno === "ADM" || agendamento.quantidadeAlmocoLanche > 0 ||
-		   (agendamento.tipoAgendamento === "Home Office" && agendamento.refeicoes?.includes("Almoço"))
+		(agendamento.tipoAgendamento === "Home Office" && agendamento.refeicoes?.includes("Almoço"))
 }
 
 const temJantarCeia = (agendamento) => {
 	return agendamento.turno === "B" || agendamento.quantidadeJantarCeia > 0 ||
-		   (agendamento.tipoAgendamento === "Home Office" && (agendamento.refeicoes?.includes("Jantar") || agendamento.refeicoes?.includes("Ceia")))
+		(agendamento.tipoAgendamento === "Home Office" && (agendamento.refeicoes?.includes("Jantar") || agendamento.refeicoes?.includes("Ceia")))
 }
 
 const temLanche = (agendamento) => {
@@ -91,6 +91,14 @@ const validarHorarioCancelamento = (agendamento) => {
 				return adjustDate(agendamento.dataCoffee)
 			}
 
+			if (agendamento.tipoAgendamento === "Administrativo - Lanche") {
+				return adjustDate(agendamento.data)
+			}
+
+			if (agendamento.tipoAgendamento === "Rota Extra") {
+				return adjustDate(agendamento.dataInicio)
+			}
+
 			return null
 		}
 
@@ -126,6 +134,34 @@ const validarHorarioCancelamento = (agendamento) => {
 				return {
 					permitido: false,
 					mensagem: getMensagemCancelamento(agendamento, ehFinalDeSemana),
+				}
+			}
+		}
+
+		if (agendamento.tipoAgendamento === "Rota Extra") {
+			const diaSemana = agora.getDay()
+			if (diaSemana === 5) {
+				if (horaAtual >= 11) {
+					return {
+						permitido: false,
+						mensagem: "Rota Extra: Cancelamento deve ser feito até sexta-feira às 11:00h.",
+					}
+				}
+			} else if (diaSemana > 5) {
+				return {
+					permitido: false,
+					mensagem: "Rota Extra: Cancelamento deve ser feito até sexta-feira às 11:00h.",
+				}
+			}
+		}
+
+		if (agendamento.tipoAgendamento === "Administrativo - Lanche") {
+			if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
+				if (horaAtual >= 9) {
+					return {
+						permitido: false,
+						mensagem: "Lanche das 16h do dia solicitado: Cancelamento deve ser feito até 09:00h do mesmo dia.",
+					}
 				}
 			}
 		}

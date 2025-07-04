@@ -1,10 +1,10 @@
 # Sistema de Agendamento de Refeições - API
 
-## Sobre o Projeto
+## 📋 Sobre o Projeto
 
 API REST completa para o sistema de agendamento de refeições da Nutrilite. Gerencia múltiplos tipos de agendamentos, usuários, notificações por email, validações de horários e regras de negócio específicas.
 
-## Tecnologias Utilizadas
+## 🛠️ Tecnologias Utilizadas
 
 ### Core
 
@@ -35,7 +35,7 @@ API REST completa para o sistema de agendamento de refeições da Nutrilite. Ger
 - **[Nodemon](https://nodemon.io/)** - Hot-reload para desenvolvimento
 - **[dotenv](https://www.npmjs.com/package/dotenv)** - Gerenciamento de variáveis de ambiente
 
-## Arquitetura do Projeto
+## 🏗️ Arquitetura do Projeto
 
 ```
 api/
@@ -63,13 +63,14 @@ api/
 │   ├── app.js                   # Configuração do Express
 │   └── routes.js                # Definição das rotas
 ├── .env                         # Variáveis de ambiente
+├── .env.example                 # Exemplo de variáveis de ambiente
 ├── .gitignore                   # Arquivos ignorados pelo Git
 ├── package.json                 # Dependências e scripts
 ├── yarn.lock                    # Lock file do Yarn
 └── README.md                    # Documentação
 ```
 
-## Configuração e Instalação
+## ⚙️ Configuração e Instalação
 
 ### Pré-requisitos
 
@@ -158,7 +159,7 @@ O sistema cria automaticamente um usuário admin:
 - **Email:** admin@gmail.com
 - **Senha:** admin123
 
-## Executando o Projeto
+## 🚀 Executando o Projeto
 
 ### Desenvolvimento (com hot-reload)
 
@@ -170,9 +171,98 @@ yarn dev
 
 ```bash
 yarn start
+# ou
+yarn prod
 ```
 
 O servidor estará disponível em `http://localhost:3001`
+
+## 📦 Scripts Disponíveis
+
+```bash
+yarn dev      # Desenvolvimento com nodemon (hot-reload)
+yarn start    # Produção (node src/app.js)
+yarn prod     # Produção com NODE_ENV=production
+yarn build    # Script de build (não necessário para Node.js)
+```
+
+## 🌐 Deploy em Produção
+
+### 1. Preparação do Servidor
+
+```bash
+# Instale Node.js e MySQL no servidor
+# Clone o repositório
+git clone <url-do-repositorio>
+cd AgendamentoRefeicao/api
+
+# Instale dependências
+yarn install --production
+```
+
+### 2. Configuração de Produção
+
+```bash
+# Copie o arquivo de exemplo
+cp .env.example .env
+
+# Configure as variáveis para produção
+# - FRONTEND_URL: URL do seu frontend em produção
+# - DB_HOST: Host do banco de dados
+# - JWT_SECRET: Chave secreta forte
+# - EMAIL_*: Configurações de email
+```
+
+### 3. Configuração do Banco
+
+```sql
+CREATE DATABASE agendamento_nutrilite;
+CREATE USER 'usuario'@'localhost' IDENTIFIED BY 'senha';
+GRANT ALL PRIVILEGES ON agendamento_nutrilite.* TO 'usuario'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+### 4. Execução em Produção
+
+```bash
+# Usando PM2 (recomendado)
+npm install -g pm2
+pm2 start src/app.js --name "nutrilite-api"
+
+# Ou usando yarn
+yarn start
+```
+
+### 5. Configuração de Proxy (Nginx)
+
+```nginx
+server {
+    listen 80;
+    server_name api.seu-dominio.com;
+
+    location / {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+### 6. SSL/HTTPS (Let's Encrypt)
+
+```bash
+# Instale o Certbot
+sudo apt install certbot python3-certbot-nginx
+
+# Obtenha o certificado
+sudo certbot --nginx -d api.seu-dominio.com
+```
 
 ## 📡 API Endpoints
 
@@ -562,6 +652,8 @@ O sistema usa Nodemailer com templates HTML personalizados para diferentes tipos
 ```bash
 yarn dev      # Desenvolvimento com nodemon
 yarn start    # Produção
+yarn prod     # Produção com NODE_ENV=production
+yarn build    # Script de build (não necessário)
 ```
 
 ### Estrutura de Desenvolvimento

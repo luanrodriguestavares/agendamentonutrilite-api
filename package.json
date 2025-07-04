@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon src/app.js",
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "build": "echo 'No build step required for Node.js API'",
+    "prod": "NODE_ENV=production node src/app.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
