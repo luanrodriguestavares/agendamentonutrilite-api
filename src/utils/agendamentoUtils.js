@@ -2,11 +2,17 @@ const { format, isAfter, isBefore, startOfDay, addDays, getDay } = require("date
 const { ptBR } = require("date-fns/locale")
 
 const temAlmoco = (agendamento) => {
+	if (agendamento.tipoAgendamento === "Administrativo - Lanche") {
+		return false
+	}
 	return agendamento.turno === "A" || agendamento.turno === "ADM" || agendamento.quantidadeAlmocoLanche > 0 ||
 		(agendamento.tipoAgendamento === "Home Office" && agendamento.refeicoes?.includes("Almoço"))
 }
 
 const temJantarCeia = (agendamento) => {
+	if (agendamento.tipoAgendamento === "Administrativo - Lanche") {
+		return false
+	}
 	return agendamento.turno === "B" || agendamento.quantidadeJantarCeia > 0 ||
 		(agendamento.tipoAgendamento === "Home Office" && (agendamento.refeicoes?.includes("Jantar") || agendamento.refeicoes?.includes("Ceia")))
 }
@@ -156,6 +162,17 @@ const validarHorarioCancelamento = (agendamento) => {
 		}
 
 		if (agendamento.tipoAgendamento === "Administrativo - Lanche") {
+			if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
+				if (horaAtual >= 9) {
+					return {
+						permitido: false,
+						mensagem: "Lanche das 16h do dia solicitado: Cancelamento deve ser feito até 09:00h do mesmo dia.",
+					}
+				}
+			}
+		}
+
+		if (agendamento.tipoAgendamento === "Administrativo - Lanche" && ehFinalDeSemana) {
 			if (diaAtual.getTime() === dataAgendamentoSemHora.getTime()) {
 				if (horaAtual >= 9) {
 					return {
