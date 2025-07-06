@@ -14,11 +14,14 @@ app.use(routes)
 
 const createDefaultAdmin = async () => {
     try {
-        const adminExists = await models.User.findOne({ where: { email: "admin@gmail.com" } })
+        const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || "servicosnutriliteagendamento@gmail.com"
+        const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || "nutrilite"
+
+        const adminExists = await models.User.findOne({ where: { email: adminEmail } })
         if (!adminExists) {
             await models.User.create({
-                email: "admin@gmail.com",
-                password: "admin123",
+                email: adminEmail,
+                password: adminPassword,
                 role: "admin",
             })
             console.log("Usuário admin criado com sucesso!")

@@ -7,7 +7,6 @@ const formatarData = (data) => {
         const date = new Date(data);
         if (isNaN(date.getTime())) return 'Data inválida';
 
-        // Ajusta o fuso horário para considerar UTC
         const userTimezoneOffset = date.getTimezoneOffset() * 60000;
         const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
         adjustedDate.setHours(0, 0, 0, 0);
@@ -184,8 +183,8 @@ const gerarTemplateEmail = (nome, tipo, status, linkCancelamento, agendamento) =
 
                 <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 20px;">
                     ${status === 'pendente' ?
-                        'Recebemos seu agendamento com sucesso! Em breve você receberá uma confirmação.' :
-                        'Seu agendamento foi confirmado!'}
+            'Recebemos seu agendamento com sucesso! Em breve você receberá uma confirmação.' :
+            'Seu agendamento foi confirmado!'}
                 </p>
 
                 <div style="background-color: #f9fafb; border-radius: 6px; padding: 20px; margin: 20px 0;">
@@ -661,7 +660,7 @@ const sendEmail = async ({ to, subject, text, html, agendamento, motivo, error }
         }
 
         if (agendamento.tipoAgendamento === 'Coffee Break' || subject.includes('Cancelado')) {
-            to = `${to}, luantavares.developer@gmail.com`;
+            to = `${to}, ur.nutrilite@serlares.com.br`;
         }
 
         await transporter.sendMail({
