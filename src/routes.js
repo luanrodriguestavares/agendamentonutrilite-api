@@ -5,6 +5,16 @@ const authMiddleware = require("./middlewares/auth")
 
 const routes = Router()
 
+// Rota de teste para verificar se a API está funcionando
+routes.get("/test", (req, res) => {
+    res.status(200).json({
+        status: "success",
+        message: "API está funcionando corretamente!",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    })
+})
+
 // Rotas públicas
 routes.post("/auth/login", AuthController.login)
 routes.post("/agendamentos", AgendamentoController.create.bind(AgendamentoController))
