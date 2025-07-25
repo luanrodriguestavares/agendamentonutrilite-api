@@ -63,6 +63,7 @@ if (useHttps) {
     console.log('Servidor rodando em https://localhost');
     initializeApp();
   });
+  return;
 }
 
 app.listen(PORT, HOST, () => {
