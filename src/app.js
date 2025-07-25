@@ -59,7 +59,7 @@ try {
 }
 
 if (useHttps) {
-  https.createServer(httpsOptions, app).listen(443, HOST, () => {
+  https.createServer(httpsOptions, app).listen(3443, HOST, () => {
     console.log('Servidor rodando em https://localhost');
     initializeApp();
   });
