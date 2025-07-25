@@ -3,6 +3,8 @@ const cors = require("cors")
 const routes = require("./routes")
 const { models, syncModels } = require("./models")
 const sequelize = require("./config/database")
+const fs = require('fs');
+const https = require('https');
 
 require("dotenv").config()
 
@@ -43,8 +45,29 @@ const initializeApp = async () => {
     }
 }
 
-const PORT = process.env.PORT || 3001
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Servidor rodando na porta ${PORT}`)
-    initializeApp()
-})
+const PORT = process.env.PORT || 3001;
+const HOST = '0.0.0.0';
+
+const httpsOptions = {};
+let useHttps = false;
+try {
+  httpsOptions.key = fs.readFileSync('src/server.key');
+  httpsOptions.cert = fs.readFileSync('src/server.cert');
+  useHttps = true;
+} catch (err) {
+  console.warn('Certificados SSL não encontrados. O servidor rodará em HTTP. Para HTTPS, gere server.key e server.cert na pasta src. Exemplo para gerar autoassinado:\nopenssl req -nodes -new -x509 -keyout src/server.key -out src/server.cert');
+}
+
+if (useHttps) {
+  https.createServer(httpsOptions, app).listen(443, HOST, () => {
+    console.log('Servidor rodando em https://localhost');
+    initializeApp();
+  });
+}
+
+app.listen(PORT, HOST, () => {
+  if (!useHttps) {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
+    initializeApp();
+  }
+});
