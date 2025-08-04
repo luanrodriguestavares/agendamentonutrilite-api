@@ -31,6 +31,10 @@ const RotaExtra = createBaseAgendamento(sequelize, "RotaExtra", "rotas_extra", {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    diasSemana: {
+        type: DataTypes.JSON,
+        allowNull: true,
+    },
 })
 
 module.exports = RotaExtra

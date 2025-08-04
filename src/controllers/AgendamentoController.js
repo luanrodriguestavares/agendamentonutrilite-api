@@ -75,10 +75,12 @@ class AgendamentoController {
                     dataFim: tratarData(dados.dataFim),
                     dataFeriado: tratarData(dados.dataFeriado),
                     turno: dados.turno,
-                    quantidadeAlmocoLanche: dados.quantidadeAlmocoLanche,
-                    quantidadeJantarCeia: dados.quantidadeJantarCeia,
-                    quantidadeLancheExtra: dados.quantidadeLancheExtra,
+                    quantidadeAlmoco: dados.quantidadeAlmoco,
+                    quantidadeLanche: dados.quantidadeLanche,
+                    quantidadeJantar: dados.quantidadeJantar,
+                    quantidadeCeia: dados.quantidadeCeia,
                     refeitorio: dados.refeitorio,
+                    diasSemana: dados.diasSemana,
                     observacao: dados.observacao,
                 }
 
@@ -91,6 +93,7 @@ class AgendamentoController {
                     turno: dados.turno,
                     refeitorio: dados.refeitorio,
                     refeicoes: dados.refeicoes,
+                    diasSemana: dados.diasSemana,
                 }
 
             case "Administrativo - Lanche":
@@ -138,6 +141,7 @@ class AgendamentoController {
                     dataFim: tratarData(dados.dataFim),
                     quantidadeTiangua: dados.quantidadeTiangua,
                     quantidadeUbajara: dados.quantidadeUbajara,
+                    diasSemana: dados.diasSemana,
                 }
 
             default:

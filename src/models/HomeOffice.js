@@ -27,6 +27,10 @@ const HomeOffice = createBaseAgendamento(sequelize, "HomeOffice", "home_office",
         type: DataTypes.JSON,
         allowNull: false,
     },
+    diasSemana: {
+        type: DataTypes.JSON,
+        allowNull: true,
+    },
 })
 
 module.exports = HomeOffice

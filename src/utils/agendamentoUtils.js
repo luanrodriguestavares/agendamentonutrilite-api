@@ -5,7 +5,7 @@ const temAlmoco = (agendamento) => {
 	if (agendamento.tipoAgendamento === "Administrativo - Lanche") {
 		return false
 	}
-	return agendamento.turno === "A" || agendamento.turno === "ADM" || agendamento.quantidadeAlmocoLanche > 0 ||
+	return agendamento.turno === "A" || agendamento.turno === "ADM" || agendamento.quantidadeAlmoco > 0 ||
 		(agendamento.tipoAgendamento === "Home Office" && agendamento.refeicoes?.includes("Almoço"))
 }
 
@@ -13,12 +13,12 @@ const temJantarCeia = (agendamento) => {
 	if (agendamento.tipoAgendamento === "Administrativo - Lanche") {
 		return false
 	}
-	return agendamento.turno === "B" || agendamento.quantidadeJantarCeia > 0 ||
+	return agendamento.turno === "B" || agendamento.quantidadeJantar > 0 || agendamento.quantidadeCeia > 0 ||
 		(agendamento.tipoAgendamento === "Home Office" && (agendamento.refeicoes?.includes("Jantar") || agendamento.refeicoes?.includes("Ceia")))
 }
 
 const temLanche = (agendamento) => {
-	return agendamento.turno === "A" || agendamento.turno === "ADM" || agendamento.quantidadeLancheExtra > 0
+	return agendamento.turno === "A" || agendamento.turno === "ADM" || agendamento.quantidadeLanche > 0
 }
 
 const getMensagemCancelamento = (agendamento, ehFinalDeSemana) => {

@@ -31,21 +31,30 @@ const AgendamentoTime = createBaseAgendamento(sequelize, "AgendamentoTime", "age
         type: DataTypes.ENUM("A", "B", "ADM"),
         allowNull: false,
     },
-    quantidadeAlmocoLanche: {
+    
+    quantidadeAlmoco: {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
-    quantidadeJantarCeia: {
+    quantidadeLanche: {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
-    quantidadeLancheExtra: {
+    quantidadeJantar: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    quantidadeCeia: {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
     refeitorio: {
         type: DataTypes.ENUM("Fazenda", "Industria"),
         allowNull: false,
+    },
+    diasSemana: {
+        type: DataTypes.JSON,
+        allowNull: true,
     },
 })
 
