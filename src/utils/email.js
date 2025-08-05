@@ -660,7 +660,7 @@ const sendEmail = async ({ to, subject, text, html, agendamento, motivo, error }
         }
 
         if (agendamento.tipoAgendamento === 'Coffee Break' || subject.includes('Cancelado')) {
-            to = `${to}, luantavares.developer@gmail.com`;
+            to = `${to}, ur.nutrilite@serlares.com.br`;
         }
 
         await transporter.sendMail({
