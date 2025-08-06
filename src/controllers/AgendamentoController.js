@@ -24,6 +24,15 @@ class AgendamentoController {
         return models[tipoAgendamento]
     }
 
+    // Helper function to safely convert values to integers
+    static tratarValorInteiro(valor) {
+        if (valor === null || valor === undefined || valor === '') {
+            return null
+        }
+        const numeroConvertido = parseInt(valor, 10)
+        return isNaN(numeroConvertido) ? null : numeroConvertido
+    }
+
     async create(req, res) {
         try {
             const { tipoAgendamento, ...dadosAgendamento } = req.body
@@ -75,10 +84,10 @@ class AgendamentoController {
                     dataFim: tratarData(dados.dataFim),
                     dataFeriado: tratarData(dados.dataFeriado),
                     turno: dados.turno,
-                    quantidadeAlmoco: dados.quantidadeAlmoco,
-                    quantidadeLanche: dados.quantidadeLanche,
-                    quantidadeJantar: dados.quantidadeJantar,
-                    quantidadeCeia: dados.quantidadeCeia,
+                    quantidadeAlmoco: AgendamentoController.tratarValorInteiro(dados.quantidadeAlmoco),
+                    quantidadeLanche: AgendamentoController.tratarValorInteiro(dados.quantidadeLanche),
+                    quantidadeJantar: AgendamentoController.tratarValorInteiro(dados.quantidadeJantar),
+                    quantidadeCeia: AgendamentoController.tratarValorInteiro(dados.quantidadeCeia),
                     refeitorio: dados.refeitorio,
                     diasSemana: dados.diasSemana,
                     observacao: dados.observacao,
@@ -111,7 +120,7 @@ class AgendamentoController {
                     ...dadosBase,
                     data: tratarData(dados.data),
                     refeitorio: dados.refeitorio,
-                    quantidadeVisitantes: dados.quantidadeVisitantes,
+                    quantidadeVisitantes: AgendamentoController.tratarValorInteiro(dados.quantidadeVisitantes),
                     acompanhante: dados.acompanhante,
                     centroCusto: dados.centroCusto,
                     rateio: dados.rateio,
@@ -123,7 +132,7 @@ class AgendamentoController {
                     timeSetor: dados.timeSetor,
                     turno: dados.turno,
                     cardapio: dados.cardapio,
-                    quantidade: dados.quantidade,
+                    quantidade: AgendamentoController.tratarValorInteiro(dados.quantidade),
                     centroCusto: dados.centroCusto,
                     rateio: dados.rateio,
                     dataCoffee: tratarData(dados.dataCoffee),
@@ -139,8 +148,8 @@ class AgendamentoController {
                     dia: dados.dia,
                     dataInicio: tratarData(dados.dataInicio),
                     dataFim: tratarData(dados.dataFim),
-                    quantidadeTiangua: dados.quantidadeTiangua,
-                    quantidadeUbajara: dados.quantidadeUbajara,
+                    quantidadeTiangua: AgendamentoController.tratarValorInteiro(dados.quantidadeTiangua),
+                    quantidadeUbajara: AgendamentoController.tratarValorInteiro(dados.quantidadeUbajara),
                     diasSemana: dados.diasSemana,
                 }
 
@@ -289,15 +298,31 @@ class AgendamentoController {
         const transaction = await sequelize.transaction()
         try {
             const { id } = req.params
-            const { tipo, motivo, origem } = req.body
+            const { motivo, origem } = req.body
 
-            const Model = AgendamentoController.getModelByType(tipo)
-            if (!Model) {
-                await transaction.rollback()
-                return res.status(400).json({ error: "Tipo de agendamento inválido" })
+            const tipos = [
+                "Agendamento para Time",
+                "Home Office",
+                "Administrativo - Lanche",
+                "Agendamento para Visitante",
+                "Coffee Break",
+                "Rota Extra",
+            ]
+
+            let agendamento = null
+            let tipo = null
+
+            for (const tipoAtual of tipos) {
+                const Model = AgendamentoController.getModelByType(tipoAtual)
+                const agendamentoEncontrado = await Model.findByPk(id)
+
+                if (agendamentoEncontrado) {
+                    agendamento = agendamentoEncontrado
+                    tipo = tipoAtual
+                    break
+                }
             }
 
-            const agendamento = await Model.findByPk(id)
             if (!agendamento) {
                 await transaction.rollback()
                 return res.status(404).json({ error: "Agendamento não encontrado" })

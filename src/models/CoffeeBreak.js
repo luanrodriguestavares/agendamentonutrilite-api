@@ -17,7 +17,8 @@ const CoffeeBreak = createBaseAgendamento(sequelize, "CoffeeBreak", "coffee_brea
     },
     quantidade: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
+        defaultValue: null,
     },
     centroCusto: {
         type: DataTypes.STRING,

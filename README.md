@@ -364,11 +364,12 @@ Cancela um agendamento (rota pública).
 
 ```json
 {
-  "tipo": "Agendamento para Time",
   "motivo": "Motivo do cancelamento",
   "origem": "usuario"
 }
 ```
+
+**Nota:** O tipo do agendamento é descoberto automaticamente pelo sistema. Os campos `motivo` e `origem` são opcionais.
 
 #### `GET /agendamentos/export/xlsx`
 

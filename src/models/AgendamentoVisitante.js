@@ -13,7 +13,8 @@ const AgendamentoVisitante = createBaseAgendamento(sequelize, "AgendamentoVisita
     },
     quantidadeVisitantes: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
+        defaultValue: null,
     },
     acompanhante: {
         type: DataTypes.STRING,
