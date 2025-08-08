@@ -23,6 +23,10 @@ const AgendamentoVisitante = createBaseAgendamento(sequelize, "AgendamentoVisita
         type: DataTypes.STRING,
         allowNull: false,
     },
+    rateio: {
+        type: DataTypes.ENUM("Sim", "Não"),
+        allowNull: false,
+    },
 })
 
 module.exports = AgendamentoVisitante

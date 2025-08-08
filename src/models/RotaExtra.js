@@ -12,7 +12,7 @@ const RotaExtra = createBaseAgendamento(sequelize, "RotaExtra", "rotas_extra", {
         allowNull: false,
     },
     dia: {
-        type: DataTypes.ENUM("Feriado", "Sabado", "Domingo"),
+        type: DataTypes.ENUM("Feriado", "Sabado", "Domingo", "Dia Util"),
         allowNull: false,
     },
     dataInicio: {

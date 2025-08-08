@@ -16,7 +16,8 @@ const SolicitacaoLanche = createBaseAgendamento(sequelize, "SolicitacaoLanche", 
         allowNull: false,
     },
     refeitorio: {
-        type: DataTypes.ENUM("Fazenda", "Industria"),
+        type: DataTypes.STRING,
+        defaultValue: "Industria",
         allowNull: false,
     },
     refeicoes: {

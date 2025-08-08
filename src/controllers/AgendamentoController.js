@@ -111,6 +111,7 @@ class AgendamentoController {
                     quantidadeVisitantes: dados.quantidadeVisitantes,
                     acompanhante: dados.acompanhante,
                     centroCusto: dados.centroCusto,
+                    rateio: dados.rateio,
                 }
 
             case "Coffee Break":
